@@ -1,54 +1,46 @@
 package de.husten1997.copyinstance;
 
 import de.husten1997.actionpipeline.ActionPipelineStep;
-import de.husten1997.gui.Gui;
 import static de.husten1997.main.Log.setupLogger;
+
+import de.husten1997.main.ApplicationContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.logging.*;
 
-import static de.husten1997.copyinstance.RelevantFolder.RELEVANT_FILES;
-import static de.husten1997.copyinstance.RelevantFolder.RELEVANT_FOLDERS;
-
-
 public class CopyInstance implements ActionPipelineStep {
-    private String sourceInstance;
-    private String targetInstance;
+    private final String sourceInstance;
+    private final String targetInstance;
 
-    private ActionPipelineStep[] actionBatch;
+    private final CopyPlan[] planBatch;
+    private final CopyStep[] actionBatch;
 
     private static final Logger LOGGER = setupLogger( CopyInstance.class.getName() );
 
-    public CopyInstance(@NotNull String sourceInstance, @NotNull String targetInstance) {
-        this.sourceInstance = sourceInstance.endsWith("/") ? sourceInstance : sourceInstance + "/";;
-        this.targetInstance = targetInstance.endsWith("/") ? targetInstance : targetInstance + "/";;
-
-        this.actionBatch = createActionBatch(this.sourceInstance, this.targetInstance);
+    public CopyInstance(@NotNull ApplicationContext config) {
+        this.sourceInstance = config.getOldGtnhFolderPath().endsWith("/") ? config.getOldGtnhFolderPath() : config.getOldGtnhFolderPath() + "/";
+        this.targetInstance = config.getNewGtnhFolderPath().endsWith("/") ? config.getNewGtnhFolderPath() : config.getNewGtnhFolderPath() + "/";
+        this.planBatch = config.getCopyPlanBatch();
+        this.actionBatch = getCopyActionBatch(this.planBatch, this.sourceInstance, this.targetInstance);
     }
 
-    private ActionPipelineStep[] createActionBatch(String sourceInstance, String targetInstance) {
-        ArrayList<ActionPipelineStep> tmpCopyActions = new ArrayList<ActionPipelineStep>();
+    public CopyStep[] getCopyActionBatch(CopyPlan[] copyPlanBatch, String sourceInstance, String targetInstance) {
+        ArrayList<CopyStep> tmpActionBatch = new ArrayList<>();
 
-        for (String relevantFolder: RELEVANT_FOLDERS) {
-            tmpCopyActions.add(new CopyFolder(sourceInstance + relevantFolder, targetInstance + relevantFolder));
+        for (CopyPlan step: copyPlanBatch) {
+            if (step.isActive()) {
+                tmpActionBatch.add(step.getAction(sourceInstance, targetInstance));
+            }
         }
-
-        for (String relevantFolder: RELEVANT_FILES) {
-            tmpCopyActions.add(new CopyFile(sourceInstance + relevantFolder, targetInstance + relevantFolder));
-        }
-
-        return tmpCopyActions.toArray(new ActionPipelineStep[0]);
+        return tmpActionBatch.toArray(new CopyStep[0]);
     }
-
 
     @Override
     public boolean execute() {
         LOGGER.log(Level.FINE, "Start copy of instance -----------------------");
-        for (ActionPipelineStep step: this.actionBatch) {
+        for (CopyStep step: this.actionBatch) {
             LOGGER.log(Level.FINE, String.format("Copy instance folder: %s", step.identify()));
             try {
                 step.execute();

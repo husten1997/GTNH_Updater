@@ -1,0 +1,43 @@
+package de.husten1997.gui;
+
+import de.husten1997.copyinstance.CopyPlan;
+import de.husten1997.main.ApplicationContext;
+import de.husten1997.main.Log;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.logging.Logger;
+
+public class PanelCopySelect extends GtnhUpdaterGuiComponent {
+    private final Logger LOGGER = Log.setupLogger( PanelCopySelect.class.getName() );
+
+    private final CopyPlan[] copyPlans;
+    private final JCheckBox[] copySourceSelect;
+
+    public PanelCopySelect(String frameName, ApplicationContext applicationContext) {
+        super(frameName, applicationContext);
+
+        setLayout(new GridLayout(-1, 3));
+        setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createTitledBorder(this.getFrameName()),
+                        BorderFactory.createEmptyBorder(5,5,5,5)
+                )
+        );
+
+        this.copyPlans = applicationContext.getCopyPlanBatch();
+        this.copySourceSelect = new JCheckBox[copyPlans.length];
+
+        for (int i = 0; i < copyPlans.length; i++) {
+            this.copySourceSelect[i] = new JCheckBox(this.copyPlans[i].getDisplayName(), this.copyPlans[i].isActive());
+            add(this.copySourceSelect[i]);
+        }
+    }
+
+    public CopyPlan[] getCopyPlans() {
+        for (int i = 0; i < this.copySourceSelect.length; i++) {
+            this.copyPlans[i].setActive(this.copySourceSelect[i].isSelected());
+        }
+        return this.copyPlans;
+    }
+}
