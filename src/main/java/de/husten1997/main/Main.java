@@ -1,7 +1,9 @@
 package de.husten1997.main;
 
 import de.husten1997.gui.Gui;
-import java.util.logging.*;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static de.husten1997.main.Log.setupLogger;
 

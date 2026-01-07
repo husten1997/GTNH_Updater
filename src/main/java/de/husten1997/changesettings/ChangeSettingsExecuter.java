@@ -1,7 +1,6 @@
 package de.husten1997.changesettings;
 
 import de.husten1997.actionpipeline.ActionPipelineStep;
-
 import de.husten1997.main.ApplicationContext;
 import org.jetbrains.annotations.NotNull;
 

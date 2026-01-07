@@ -1,16 +1,19 @@
 package de.husten1997.gui;
 
-import de.husten1997.changesettings.*;
+import de.husten1997.changesettings.ChangeSettingsExecuter;
+import de.husten1997.changesettings.ChangeStepHandler;
 import de.husten1997.copyinstance.CopyInstance;
 import de.husten1997.copyinstance.CopyPlan;
 import de.husten1997.main.ApplicationContext;
 
-import static de.husten1997.main.Log.setupLogger;
-
-import java.awt.*;
-import java.awt.event.*;
-import java.util.logging.*;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static de.husten1997.main.Log.setupLogger;
 
 public class Gui extends GtnhUpdaterGuiComponent {
     private final Runnable callbackWriteConfig;
