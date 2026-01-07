@@ -1,14 +1,15 @@
 package de.husten1997.copyinstance;
 
 import de.husten1997.actionpipeline.ActionPipelineStep;
-import static de.husten1997.main.Log.setupLogger;
-
 import de.husten1997.main.ApplicationContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static de.husten1997.main.Log.setupLogger;
 
 public class CopyInstance implements ActionPipelineStep {
     private final String sourceInstance;

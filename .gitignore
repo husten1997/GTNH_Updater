@@ -25,3 +25,7 @@ replay_pid*
 
 # Config Files
 *.cfg
+
+# Build Folders
+out
+target

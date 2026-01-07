@@ -1,6 +1,5 @@
 package de.husten1997.main;
 
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -18,7 +17,7 @@ public class ApplicationContextHandler {
 
     public ApplicationContextHandler() {
         this.mapper = new ObjectMapper();
-        mapper.setDefaultPrettyPrinter(new DefaultPrettyPrinter());
+//        mapper.setDefaultPrettyPrinter(new DefaultPrettyPrinter());
         mapper.enable(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
