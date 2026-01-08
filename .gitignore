@@ -29,3 +29,7 @@ replay_pid*
 # Build Folders
 out
 target
+
+# MacOS stuff
+.DS_STORE
+.DS_Store
