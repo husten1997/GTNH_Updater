@@ -34,6 +34,9 @@ public class SettingFile {
         }
 
         final SettingFile other = (SettingFile) obj;
+        if (this.filePath == null) {return false; }
+        if (other.filePath == null) {return false; }
+
         if (!this.filePath.equals(other.filePath)) {
             return false;
         }

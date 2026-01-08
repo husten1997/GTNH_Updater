@@ -24,7 +24,6 @@ public class SettingEntry {
         String template = this.settingActive ? "%s: %s": "# %s: %s";
         String line_template = this.settingLine != 0 ? String.format("(Line %d)", this.settingLine): "";
         return String.format(template, this.settingName, this.settingValue) + line_template;
-//        return this.settingName + ": " + this.settingValue;
     }
 
     public String getSettingName() {
@@ -70,6 +69,9 @@ public class SettingEntry {
         }
 
         final SettingEntry other = (SettingEntry) obj;
+        if (this.settingName == null) { return false; }
+        if (other.settingName == null) { return false; }
+
         if (!this.settingName.equals(other.settingName)) {
             return false;
         }

@@ -88,8 +88,14 @@ public class FsIo {
     public static Optional<ConfigLine> parseLine(String line) {
         // List of patterns for different config formats
         final List<Pattern> PATTERNS = Arrays.asList(
-                // Format: B:key=value (e.g., "B:fixImmersiveEngineering=true")
-                Pattern.compile("^(?<before>\\s*B:(?<key>\\w+)=)(?<value>\\w+)(?<after>.*)$"),
+                // Format: C:key="value" (Character/String format with quotes, e.g., "C:serverName=\"MyServer\"")
+                // This must be checked before the general [BIC]: pattern to handle quoted values correctly
+                Pattern.compile("^(?<before>\\s*C:(?<key>\\w+)=\")(?<value>[^\"]*)(?<after>\".*)$"),
+
+                // Format: [BIC]:key=value (e.g., "B:fixImmersiveEngineering=true", "I:maxPlayers=20")
+                // Supports Boolean (B:), Integer (I:), and Character (C:) prefixes
+                // Value can contain word characters, hyphens, and plus signs for numbers
+                Pattern.compile("^(?<before>\\s*[BIC]:(?<key>\\w+)=)(?<value>[\\w+\\-]+)(?<after>.*)$"),
 
                 // Format: "key": value (JSON-style, e.g., "\"chunk_builder_threads\": 0,")
                 Pattern.compile("^(?<before>\\s*\"(?<key>\\w+)\":\\s*)(?<value>\\w+)(?<after>.*)$"),
