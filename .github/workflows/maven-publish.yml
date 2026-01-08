@@ -30,8 +30,8 @@ jobs:
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+    - name: Build and Test
+      run: mvn clean verify -B
 
     - name: Upload to Release
       uses: softprops/action-gh-release@v2.5.0
