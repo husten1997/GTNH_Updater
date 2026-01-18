@@ -1,6 +1,6 @@
 package de.husten1997.main;
 
-import de.husten1997.gui.Gui;
+import de.husten1997.gui.MainWindow;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,7 +16,7 @@ public class Main {
 
         ApplicationContextHandler configHandler = new ApplicationContextHandler();
 
-        Gui gui = new Gui("GTNH Updater", configHandler.getApplicationConfig(), configHandler::writeConfigFile);
+        MainWindow gui = new MainWindow(configHandler.getApplicationConfig(), configHandler::writeConfigFile);
         gui.show();
 
         LOGGER.log(Level.FINEST, "Closing App");

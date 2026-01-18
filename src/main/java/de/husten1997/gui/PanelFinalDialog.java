@@ -6,34 +6,51 @@ import de.husten1997.main.Log;
 import javax.swing.*;
 import java.util.logging.Logger;
 
-public class PanelFinalDialog extends GtnhUpdaterGuiComponent {
+public class PanelFinalDialog extends GtnhUpdaterPanelComponent {
+    // Logger
     private final Logger LOGGER = Log.setupLogger( PanelFinalDialog.class.getName() );
 
-    public PanelFinalDialog(String frameName, ApplicationContext applicationContext, Runnable copyCallback, Runnable settingsCallback) {
-        super( frameName, applicationContext);
+    // UI Components
+    private final JButton buttonMigrate;
+    private final JButton buttonUpdateSettings;
+    private final JButton buttonApprove;
+    private final JButton buttonCancel;
 
-        JButton ButtonMigrate = new JButton("Migrate Instance");
-        JButton ButtonUpdateSettings = new JButton("UpdateSettings");
-        JButton ButtonApprove = new JButton("Full Run");
-        JButton ButtonCancel = new JButton("Cancel");
+    public PanelFinalDialog(ApplicationContext applicationContext, Runnable copyCallback, Runnable settingsCallback) {
+        super(applicationContext);
 
-        ButtonMigrate.addActionListener(e -> copyCallback.run());
+        buttonMigrate = new JButton();
+        buttonUpdateSettings = new JButton();
+        buttonApprove = new JButton();
+        buttonCancel = new JButton();
 
-        ButtonUpdateSettings.addActionListener(e -> settingsCallback.run());
+        buttonMigrate.addActionListener(e -> copyCallback.run());
 
-        ButtonApprove.addActionListener(e -> {
+        buttonUpdateSettings.addActionListener(e -> settingsCallback.run());
+
+        buttonApprove.addActionListener(e -> {
             copyCallback.run();
             settingsCallback.run();
         });
 
-        ButtonCancel.addActionListener(e -> {
-            System.out.println("Cancel");
-            System.exit(0);
-        });
+        buttonCancel.addActionListener(e -> System.exit(0));
 
-        add(ButtonMigrate);
-        add(ButtonUpdateSettings);
-        add(ButtonApprove);
-        add(ButtonCancel);
+        add(buttonMigrate);
+        add(buttonUpdateSettings);
+        add(buttonApprove);
+        add(buttonCancel);
+    }
+
+    @Override
+    public void updateLabels() {
+        this.buttonMigrate.setText(i18nManager.get("app.finalDialog.button.migrate"));
+        this.buttonMigrate.setToolTipText(i18nManager.get("app.finalDialog.tooltip.migrate"));
+        this.buttonUpdateSettings.setText(i18nManager.get("app.finalDialog.button.updateSettings"));
+        this.buttonUpdateSettings.setToolTipText(i18nManager.get("app.finalDialog.tooltip.updateSettings"));
+        this.buttonApprove.setText(i18nManager.get("app.finalDialog.button.approve"));
+        this.buttonApprove.setToolTipText(i18nManager.get("app.finalDialog.tooltip.approve"));
+        this.buttonCancel.setText(i18nManager.get("app.finalDialog.button.cancel"));
+        this.buttonCancel.setToolTipText(i18nManager.get("app.finalDialog.tooltip.cancel"));
+
     }
 }

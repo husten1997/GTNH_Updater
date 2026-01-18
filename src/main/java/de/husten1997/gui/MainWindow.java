@@ -15,22 +15,32 @@ import java.util.logging.Logger;
 
 import static de.husten1997.main.Log.setupLogger;
 
-public class Gui extends GtnhUpdaterGuiComponent {
+public class MainWindow extends GtnhUpdaterPanelComponent {
     private final Runnable callbackWriteConfig;
 
-    private PanelGtnhFolder panelFolderSelect;
-    private PanelCopySelect panelCopySelect;
-    private PanelChangeSettings panelChangeSettings;
-    private PanelFinalDialog panelFinalDialog;
+    private final PanelHeader panelHeader;
+    private final PanelGtnhFolder panelFolderSelect;
+    private final PanelCopySelect panelCopySelect;
+    private final PanelChangeSettings panelChangeSettings;
+    private final PanelFinalDialog panelFinalDialog;
 
-    private static final Logger LOGGER = setupLogger( Gui.class.getName() );
+    private static final Logger LOGGER = setupLogger( MainWindow.class.getName() );
 
-    public Gui(String frameName, ApplicationContext applicationContext, Runnable callbackWriteConfig) {
-        super(frameName, applicationContext);
+    public MainWindow(ApplicationContext applicationContext, Runnable callbackWriteConfig) {
+        super(applicationContext);
+
+        // Listen for language changes
+        i18nManager.addLocaleChangeListener(locale -> this.updateLabels());
 
         this.callbackWriteConfig = callbackWriteConfig;
 
         LOGGER.log(Level.FINE, String.format("Setup window with dimensions W:%d, H:%d", this.getApplicationConfig().getWindowWidth(), this.getApplicationConfig().getWindowHeight()));
+
+        this.panelHeader = new PanelHeader(this.getApplicationConfig());
+        this.panelFolderSelect = new PanelGtnhFolder(this.getApplicationConfig());
+        this.panelCopySelect = new PanelCopySelect(this.getApplicationConfig());
+        this.panelChangeSettings = new PanelChangeSettings(this.getApplicationConfig());
+        this.panelFinalDialog = new PanelFinalDialog(this.getApplicationConfig(), this::migrateInstance, this::updateSettings);
 
         this.prepare_gui();
     }
@@ -40,14 +50,9 @@ public class Gui extends GtnhUpdaterGuiComponent {
 
         // Setup MainWindow
         JFrame mainWindow = new JFrame();
-        mainWindow.setTitle(this.getFrameName());
+        mainWindow.setTitle(i18nManager.get("app.mainWindow.title", false));
         mainWindow.setSize(this.getApplicationConfig().getWindowWidth(), this.getApplicationConfig().getWindowHeight());
-        mainWindow.setLayout(new GridLayout(4, 1));
-
-        this.panelFolderSelect = new PanelGtnhFolder("Select Instance Folder", this.getApplicationConfig());
-        this.panelCopySelect = new PanelCopySelect("Select the copy steps", this.getApplicationConfig());
-        this.panelChangeSettings = new PanelChangeSettings("Settings and Setting Files to change", this.getApplicationConfig());
-        this.panelFinalDialog = new PanelFinalDialog("", this.getApplicationConfig(), this::migrateInstance, this::updateSettings);
+        mainWindow.setLayout(new GridBagLayout());
 
         // Main Window Event Listener
         mainWindow.addWindowListener(new WindowAdapter() {
@@ -59,10 +64,22 @@ public class Gui extends GtnhUpdaterGuiComponent {
         });
 
         // Add components to Main Window
-        mainWindow.add(this.panelFolderSelect);
-        mainWindow.add(this.panelCopySelect);
-        mainWindow.add(this.panelChangeSettings);
-        mainWindow.add(this.panelFinalDialog);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0; gbc.fill = GridBagConstraints.BOTH; gbc.weightx = 1;
+
+        gbc.gridy = 0; gbc.weighty = 0.1;
+        mainWindow.add(this.panelHeader, gbc);
+        gbc.gridy = 1; gbc.weighty = 0.1;
+        mainWindow.add(this.panelFolderSelect, gbc);
+        gbc.gridy = 2; gbc.weighty = 0.1;
+        mainWindow.add(this.panelCopySelect, gbc);
+        gbc.gridy = 3; gbc.weighty = 1;
+        mainWindow.add(this.panelChangeSettings, gbc);
+        gbc.gridy = 4; gbc.weighty = 0.1;
+        mainWindow.add(this.panelFinalDialog, gbc);
+
+        this.updateLabels();
+
         mainWindow.setVisible(true);
     }
 
@@ -108,4 +125,12 @@ public class Gui extends GtnhUpdaterGuiComponent {
         }
     }
 
+    @Override
+    public void updateLabels() {
+        this.panelHeader.updateLabels();
+        this.panelFolderSelect.updateLabels();
+        this.panelCopySelect.updateLabels();
+        this.panelChangeSettings.updateLabels();
+        this.panelFinalDialog.updateLabels();
+    }
 }

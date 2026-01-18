@@ -97,6 +97,15 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -145,6 +154,13 @@
                             <shadedArtifactAttached>false</shadedArtifactAttached>
 
                             <filters>
+                                <filter>
+                                    <artifact>de.husten1997:gtnh-updater</artifact>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                </filter>
+
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>

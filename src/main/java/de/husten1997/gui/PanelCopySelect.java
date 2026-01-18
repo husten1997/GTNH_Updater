@@ -8,22 +8,23 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.logging.Logger;
 
-public class PanelCopySelect extends GtnhUpdaterGuiComponent {
+public class PanelCopySelect extends GtnhUpdaterPanelComponent {
+    // Logger
     private final Logger LOGGER = Log.setupLogger( PanelCopySelect.class.getName() );
 
+    // UI Components
+    private final GtnhUpdaterComponentBorder titledBorder;
+
+    // Data Components
     private final CopyPlan[] copyPlans;
     private final JCheckBox[] copySourceSelect;
 
-    public PanelCopySelect(String frameName, ApplicationContext applicationContext) {
-        super(frameName, applicationContext);
+    public PanelCopySelect(ApplicationContext applicationContext) {
+        super(applicationContext);
 
         setLayout(new GridLayout(-1, 3));
-        setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createTitledBorder(this.getFrameName()),
-                        BorderFactory.createEmptyBorder(5,5,5,5)
-                )
-        );
+        this.titledBorder = new GtnhUpdaterComponentBorder(i18nManager.get("app.copySelection.border.title"));
+        setBorder(titledBorder);
 
         this.copyPlans = applicationContext.getCopyPlanBatch();
         this.copySourceSelect = new JCheckBox[copyPlans.length];
@@ -32,6 +33,15 @@ public class PanelCopySelect extends GtnhUpdaterGuiComponent {
             this.copySourceSelect[i] = new JCheckBox(this.copyPlans[i].getDisplayName(), this.copyPlans[i].isActive());
             add(this.copySourceSelect[i]);
         }
+    }
+
+    @Override
+    public void updateLabels() {
+        // Border Title
+        this.titledBorder.setTitle(i18nManager.get("app.copySelection.border.title"));
+        this.setToolTipText(i18nManager.get("app.copySelection.tooltip.title"));
+        repaint();
+
     }
 
     public CopyPlan[] getCopyPlans() {

@@ -4,23 +4,13 @@ import de.husten1997.main.ApplicationContext;
 
 import javax.swing.*;
 
-public class GtnhUpdaterGuiComponent extends JPanel {
-    private String frameName;
+public abstract class GtnhUpdaterPanelComponent extends JPanel implements GtnhUpdaterLocalizedComponent {
     private ApplicationContext applicationContext;
 
-    public GtnhUpdaterGuiComponent(String frameName, ApplicationContext applicationContext) {
+    public GtnhUpdaterPanelComponent(ApplicationContext applicationContext) {
         super();
 
-        this.frameName = frameName;
         this.applicationContext = applicationContext;
-    }
-
-    public String getFrameName() {
-        return frameName;
-    }
-
-    private void setFrameName(String frameName) {
-        this.frameName = frameName;
     }
 
     public ApplicationContext getApplicationConfig() {

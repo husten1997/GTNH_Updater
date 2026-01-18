@@ -8,6 +8,7 @@ import de.husten1997.main.Log;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.io.File;
 import java.nio.file.Path;
@@ -16,17 +17,32 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
+public class PanelChangeSettings extends GtnhUpdaterPanelComponent {
+    // Logger
     private final Logger LOGGER = Log.setupLogger( PanelChangeSettings.class.getName() );
 
+    // UI Components
+    private final GtnhUpdaterComponentBorder titledBorder;
+    private final JPanel fileListPanel;
+    private final TitledBorder fileListBorder;
+    private final JList<SettingFile> fileList;
+    private final JButton addFile;
+    private final JButton editFile;
+    private final JButton removeFile;
+    private final JPanel settingsListPanel;
+    private final TitledBorder settingsListBorder;
+    private final JList<SettingEntry> settingsList;
+    private final JButton addSetting;
+    private final JButton editSetting;
+    private final JButton removeSetting;
+
+    // Data Components
     private final DefaultListModel<SettingFile> fileListDataModel;
     private final HashMap<String, DefaultListModel<SettingEntry>> settingsListDataModel;
-    private final JList<SettingFile> fileList;
-    private final JList<SettingEntry> settingsList;
 
 
-    public PanelChangeSettings(String frameName, ApplicationContext applicationContext) {
-        super(frameName, applicationContext);
+    public PanelChangeSettings(ApplicationContext applicationContext) {
+        super(applicationContext);
 
         // Set up the necessary lists and datamodels
         Object[] tmpData = ChangeStepHandler.translateFromChangeSettingsBatch(this.getApplicationConfig().getChangeSettingsBatch());
@@ -52,7 +68,7 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
             // Retrieve SettingsFile at index and check whether there are related SettingsEntry entries
             final String key = fileListDataModel.get(selection).toString();
             if ( !settingsListDataModel.containsKey(key) ) {
-                settingsList.setModel(new DefaultListModel<SettingEntry>());
+                settingsList.setModel(new DefaultListModel<>());
                 return;
             }
 
@@ -62,23 +78,19 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
         });
 
         // Set boarder & layout of the Panel
-        setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createTitledBorder(this.getFrameName()),
-                        BorderFactory.createEmptyBorder(5,5,5,5)
-                )
-        );
+        titledBorder = new GtnhUpdaterComponentBorder(i18nManager.get("app.settingsChange.border.title"));
+        setBorder(titledBorder);
+
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
         // Left Buttons
         JPanel leftButtonPanel = new JPanel(new GridLayout(-1, 1));
-        JButton addFile = new JButton(IconHandler.fetchIcon(BootstrapIcons.FILE_EARMARK_PLUS));
+        addFile = new JButton(IconHandler.fetchIcon(BootstrapIcons.FILE_EARMARK_PLUS));
         addFile.addActionListener(e -> {
             // Check if there is a GTNH Folder picked, break if not
-            // TODO: Add isValid function which also checks if the path is valid
-            if (applicationContext.getNewGtnhFolderPath().isEmpty()) {
-                JOptionPane.showMessageDialog(addFile, "Please select the instance folders first");
+            if ( !applicationContext.testValidNewGtnhPath() ) {
+                JOptionPane.showMessageDialog(addFile, i18nManager.get("app.warningDialog.title.selectValidInstances"));
                 return;
             }
 
@@ -86,7 +98,7 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setAcceptAllFileFilterUsed(true);
             fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            fileChooser.setDialogTitle("Chose the settings file");
+            fileChooser.setDialogTitle(i18nManager.get("app.choseFileDialog.title.choseNewSettingsFile", false));
             Path newGtnhFolderPath = Paths.get(applicationContext.getNewGtnhFolderPath());
             fileChooser.setCurrentDirectory(newGtnhFolderPath.toFile());
 
@@ -102,7 +114,7 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
             // Check whether the file is already tracked, if so, show a dialog and switch the selection of the list accordingly
             if (fileListDataModel.contains(newSettingsFileEntry)) {
                 LOGGER.log(Level.FINE, String.format("File %s at %s is already present", file.getName(), file.getPath()));
-                JOptionPane.showMessageDialog(addFile, "File is already tracked");
+                JOptionPane.showMessageDialog(addFile, i18nManager.get("app.warningDialog.title.fileAlreadyTracked"));
                 int index = fileListDataModel.indexOf(newSettingsFileEntry);
                 fileList.setSelectedIndex(index);
                 return;
@@ -116,7 +128,7 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
         });
 
         // Button Edit
-        JButton editFile = new JButton(IconHandler.fetchIcon(BootstrapIcons.PENCIL_SQUARE));
+        editFile = new JButton(IconHandler.fetchIcon(BootstrapIcons.PENCIL_SQUARE));
         editFile.addActionListener(e -> {
             // Retrieve index of selected entry and break if something is weird
             final int selection = fileList.getSelectedIndex();
@@ -125,8 +137,8 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
 
             // Check if there is a GTNH Folder picked, break if not
             // TODO: Add isValid function which also checks if the path is valid
-            if (applicationContext.getNewGtnhFolderPath().isEmpty()) {
-                JOptionPane.showMessageDialog(addFile, "Please select the instance folders first");
+            if ( !applicationContext.testValidNewGtnhPath() ) {
+                JOptionPane.showMessageDialog(addFile, i18nManager.get("app.warningDialog.title.selectValidInstances"));
                 return;
             }
 
@@ -137,7 +149,7 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setAcceptAllFileFilterUsed(true);
             fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            fileChooser.setDialogTitle("Chose the settings file");
+            fileChooser.setDialogTitle(i18nManager.get("app.choseFileDialog.title.changeSettingsFile", false));
             Path newGtnhFolderPath = Paths.get(applicationContext.getNewGtnhFolderPath());
             fileChooser.setCurrentDirectory(newGtnhFolderPath.resolve( selectedFile.getFilePath()).toFile());
 
@@ -153,7 +165,7 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
             // If the selected file is already tracked, prompt the user, switch selection and break
             if (fileListDataModel.contains(newSettingsFileEntry)) {
                 LOGGER.log(Level.FINE, String.format("File %s at %s is already present", file.getName(), file.getPath()));
-                JOptionPane.showMessageDialog(addFile, "File is already tracked");
+                JOptionPane.showMessageDialog(addFile, i18nManager.get("app.warningDialog.title.fileAlreadyTracked"));
                 int index = fileListDataModel.indexOf(newSettingsFileEntry);
                 fileList.setSelectedIndex(index);
                 return;
@@ -166,7 +178,7 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
         });
 
         // Remove Button
-        JButton removeFile = new JButton(IconHandler.fetchIcon(BootstrapIcons.FILE_EARMARK_MINUS));
+        removeFile = new JButton(IconHandler.fetchIcon(BootstrapIcons.FILE_EARMARK_MINUS));
         removeFile.addActionListener(e -> {
             // Retrieve index of selected entry and break if something is weird
             final int selection = fileList.getSelectedIndex();
@@ -185,32 +197,40 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
         leftButtonPanel.add(editFile);
         leftButtonPanel.add(removeFile);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 0.0;
-        gbc.weighty = 0.0;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.0; gbc.weighty = 0.0;
+        gbc.anchor = GridBagConstraints.EAST; gbc.fill = GridBagConstraints.BOTH;
         add(leftButtonPanel, gbc);
 
 
         // Split Pane
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, fileList, settingsList);
+        fileListPanel = new JPanel(new BorderLayout());
+        this.fileListBorder = new TitledBorder(i18nManager.get("app.settingsChange.border.fileListTitle"));
+        this.fileListBorder.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));  // Line style
+        this.fileListBorder.setTitleColor(Color.DARK_GRAY);
+        fileListPanel.setBorder(this.fileListBorder);
+        fileListPanel.add(new JScrollPane(fileList));
+
+
+        settingsListPanel = new JPanel(new BorderLayout());
+        this.settingsListBorder = new TitledBorder(i18nManager.get("app.settingsChange.border.settingsListTitle"));
+        this.fileListBorder.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));  // Line style
+        this.fileListBorder.setTitleColor(Color.DARK_GRAY);
+        settingsListPanel.setBorder(this.settingsListBorder);
+        settingsListPanel.add(new JScrollPane(settingsList));
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, fileListPanel, settingsListPanel);
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation( this.getApplicationConfig().getWindowWidth() / 2 );
+        splitPane.setBorder(BorderFactory.createEmptyBorder());
 
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 1.0; gbc.weighty = 1.0;
+        gbc.anchor = GridBagConstraints.EAST; gbc.fill = GridBagConstraints.BOTH;
         add(splitPane, gbc);
 
 
         // Right Buttons
         JPanel rightButtonPanel = new JPanel(new GridLayout(-1, 1));
-        JButton addSetting = new JButton(IconHandler.fetchIcon(BootstrapIcons.PLUS_SQUARE));
+        addSetting = new JButton(IconHandler.fetchIcon(BootstrapIcons.PLUS_SQUARE));
         addSetting.addActionListener(e -> {
             // Retrieve index of selected entry and break if something is weird
             int selected = fileList.getSelectedIndex();
@@ -219,7 +239,7 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
             // Show SettingsInputDialog & test how and if the user responded correctly
             // TODO: Prompt user or block approve action as log as values are not correct
             SettingsInputDialog inputDialog = new SettingsInputDialog();
-            int responseValue = JOptionPane.showConfirmDialog(rightButtonPanel, inputDialog, "Input Setting to Change", JOptionPane.YES_NO_OPTION);
+            int responseValue = JOptionPane.showConfirmDialog(rightButtonPanel, inputDialog, i18nManager.get("app.choseSettingDialog.title.choseSetting", false), JOptionPane.YES_NO_OPTION);
 
             if ( responseValue != JOptionPane.YES_OPTION ) { return; }
             if ( inputDialog.getSettingsName().isEmpty() ) { return; }
@@ -243,7 +263,7 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
             // If the settings list for the selected file already contains an item with the same name, we prompt the user and break
             if (settingsListDataModel.get(selectedFile.toString()).contains(newSettingEntry)) {
                 LOGGER.log(Level.FINE, String.format("Setting %s is already tracked", inputDialog.getSettingsName()));
-                JOptionPane.showMessageDialog(addFile, "Setting is already tracked");
+                JOptionPane.showMessageDialog(addFile, i18nManager.get("app.warningDialog.title.settingAlreadyTracked"));
                 int index = settingsListDataModel.get(selectedFile.toString()).indexOf(newSettingEntry);
                 settingsList.setSelectedIndex(index);
                 return;
@@ -254,7 +274,7 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
             LOGGER.log(Level.FINE, "Added a new settings value");
         });
 
-        JButton editSetting = new JButton(IconHandler.fetchIcon(BootstrapIcons.PENCIL_SQUARE));
+        editSetting = new JButton(IconHandler.fetchIcon(BootstrapIcons.PENCIL_SQUARE));
         editSetting.addActionListener(e -> {
             // Get selection
             int selectedFileIndex = fileList.getSelectedIndex();
@@ -300,7 +320,7 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
 
             if ((settingsListDataModel.get(selectedFile.toString()).contains(newSettingEntry)) ^ (overwrite)) {
                 LOGGER.log(Level.FINE, String.format("Setting %s is already tracked", inputDialog.getSettingsName()));
-                JOptionPane.showMessageDialog(addFile, "Setting is already tracked");
+                JOptionPane.showMessageDialog(addFile, i18nManager.get("app.warningDialog.title.settingAlreadyTracked"));
                 int index = settingsListDataModel.get(selectedFile.toString()).indexOf(newSettingEntry);
                 settingsList.setSelectedIndex(index);
                 return;
@@ -309,7 +329,7 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
             settingsListDataModel.get(selectedFile.toString()).setElementAt(newSettingEntry, selectedSettingIndex);
             LOGGER.log(Level.FINE, "Updated Settings");
         });
-        JButton removeSetting = new JButton(IconHandler.fetchIcon(BootstrapIcons.DASH_SQUARE));
+        removeSetting = new JButton(IconHandler.fetchIcon(BootstrapIcons.DASH_SQUARE));
         removeSetting.addActionListener(e -> {
             int selectedFileIndex = fileList.getSelectedIndex();
             int selectedSettingIndex = settingsList.getSelectedIndex();
@@ -325,14 +345,30 @@ public class PanelChangeSettings extends GtnhUpdaterGuiComponent {
         rightButtonPanel.add(editSetting);
         rightButtonPanel.add(removeSetting);
 
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        gbc.weightx = 0.0;
-        gbc.weighty = 0.0;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridx = 2; gbc.gridy = 0; gbc.weightx = 0.0; gbc.weighty = 0.0;
+        gbc.anchor = GridBagConstraints.EAST; gbc.fill = GridBagConstraints.BOTH;
         add(rightButtonPanel, gbc);
 
+    }
+
+    @Override
+    public void updateLabels() {
+        // Border title
+        this.titledBorder.setTitle(i18nManager.get("app.settingsChange.border.title"));
+        setToolTipText(i18nManager.get("app.settingsChange.tooltip.title"));
+        repaint();
+
+        this.fileListBorder.setTitle(i18nManager.get("app.settingsChange.border.fileListTitle"));
+        this.fileListPanel.setToolTipText(i18nManager.get("app.settingsChange.tooltip.fileListTitle"));
+        this.addFile.setToolTipText(i18nManager.get("app.settingsChange.tooltip.addFile"));
+        this.editFile.setToolTipText(i18nManager.get("app.settingsChange.tooltip.editFile"));
+        this.removeFile.setToolTipText(i18nManager.get("app.settingsChange.tooltip.removeFile"));
+
+        this.settingsListBorder.setTitle(i18nManager.get("app.settingsChange.border.settingsListTitle"));
+        this.settingsListPanel.setToolTipText(i18nManager.get("app.settingsChange.tooltip.settingsListTitle"));
+        this.addSetting.setToolTipText(i18nManager.get("app.settingsChange.tooltip.addSetting"));
+        this.editSetting.setToolTipText(i18nManager.get("app.settingsChange.tooltip.editSetting"));
+        this.removeSetting.setToolTipText(i18nManager.get("app.settingsChange.tooltip.removeSetting"));
     }
 
     private static boolean isOverwrite(SettingEntry selectedSettings, SettingEntry newSettingEntry) {

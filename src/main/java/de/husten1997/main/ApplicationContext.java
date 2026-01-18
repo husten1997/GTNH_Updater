@@ -2,6 +2,7 @@ package de.husten1997.main;
 
 import de.husten1997.changesettings.ChangeStepFile;
 import de.husten1997.copyinstance.CopyPlan;
+import de.husten1997.utils.FsIo;
 
 import java.util.ArrayList;
 
@@ -140,5 +141,21 @@ public class ApplicationContext {
         }
 
         return true;
+    }
+
+    public boolean testValidNewGtnhPath() {
+        FsIo.CheckPathResponse response = FsIo.checkPath( this.newGtnhFolderPath );
+
+        System.out.println(response);
+
+        if ( response == FsIo.CheckPathResponse.VALID_PATH ) { return true; }
+        return false;
+    }
+
+    public boolean testValidOldGtnhPath() {
+        FsIo.CheckPathResponse response = FsIo.checkPath( this.oldGtnhFolderPath );
+
+        if ( response == FsIo.CheckPathResponse.VALID_PATH ) { return true; }
+        return false;
     }
 }

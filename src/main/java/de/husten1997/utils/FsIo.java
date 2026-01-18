@@ -4,10 +4,7 @@ import de.husten1997.changesettings.SettingEntry;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -167,6 +164,41 @@ public class FsIo {
         Files.write(Paths.get(settingFile), newLines, StandardCharsets.UTF_8);
 
         return matches;
+    }
 
+    public enum CheckPathResponse {
+        INVALID_PATH,
+        EMPTY_PATH,
+        NULL_PATH,
+        WRONGTARGET_PATH,
+        NOTFOUND_PATH,
+        VALID_PATH
+    }
+
+    public static CheckPathResponse checkPath(String path, boolean directoryExpected) {
+        if ( path == null) { return CheckPathResponse.NULL_PATH; }
+        if ( path.isEmpty() ) { return CheckPathResponse.EMPTY_PATH; }
+
+        Path tmpPath;
+        try {
+            tmpPath = Paths.get(path);
+        } catch (NullPointerException ex) {
+            return CheckPathResponse.NULL_PATH;
+        } catch (InvalidPathException ex) {
+            return CheckPathResponse.INVALID_PATH;
+        }
+
+        if ( tmpPath.toFile().isDirectory() != directoryExpected ) { return CheckPathResponse.WRONGTARGET_PATH; }
+        if ( !tmpPath.toFile().exists() ) { return CheckPathResponse.NOTFOUND_PATH; }
+
+        return CheckPathResponse.VALID_PATH;
+    }
+
+    public static CheckPathResponse checkPath(String path) {
+        return checkPath(path, true);
+    }
+
+    public static CheckPathResponse checkFile(String path) {
+        return checkPath(path, false);
     }
 }
