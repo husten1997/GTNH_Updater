@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,8 +30,9 @@ public class MainWindow extends GtnhUpdaterPanelComponent {
     public MainWindow(ApplicationContext applicationContext, Runnable callbackWriteConfig) {
         super(applicationContext);
 
-        // Listen for language changes
+
         i18nManager.addLocaleChangeListener(locale -> this.updateLabels());
+
 
         this.callbackWriteConfig = callbackWriteConfig;
 
@@ -43,6 +45,8 @@ public class MainWindow extends GtnhUpdaterPanelComponent {
         this.panelFinalDialog = new PanelFinalDialog(this.getApplicationConfig(), this::migrateInstance, this::updateSettings);
 
         this.prepare_gui();
+
+        i18nManager.setLocale(new Locale(applicationContext.getLanguage()));
     }
 
     private void prepare_gui(){
@@ -92,11 +96,13 @@ public class MainWindow extends GtnhUpdaterPanelComponent {
         String target = panelFolderSelect.getNewGtnhFolderPath();
         CopyPlan[] copyPlans = panelCopySelect.getCopyPlans();
         ChangeStepHandler settingsToChange = new ChangeStepHandler(panelChangeSettings.getFileListDataModel(), panelChangeSettings.getSettingsListDataModel());
+        String language = i18nManager.getCurrentLocale().getLanguage();
 
         this.getApplicationConfig().setOldGtnhFolderPath(source);
         this.getApplicationConfig().setNewGtnhFolderPath(target);
         this.getApplicationConfig().setCopyPlanBatch(copyPlans);
         this.getApplicationConfig().setChangeSettingsBatch(settingsToChange.getChangeSettingsBatch());
+        this.getApplicationConfig().setLanguage(language);
     }
 
     private void migrateInstance() {

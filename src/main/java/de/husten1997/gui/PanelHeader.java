@@ -8,24 +8,21 @@ import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public class PanelHeader extends GtnhUpdaterPanelComponent implements GtnhUpdaterLocalizedComponent {
+    // Logger
     private final Logger LOGGER = Log.setupLogger( PanelGtnhFolder.class.getName() );
 
+    // Ui Components
     private final JLabel header;
     private final JLabel introduction;
     private final JButton languageSelection;
     private final JButton bugReport;
     private final JButton documentation;
-
     private final JPopupMenu languagePopup;
-    private final ButtonGroup languageButtonGroup;
-//    private final JRadioButtonMenuItem[] rbMenuItems;
-    private final Map<Locale, JRadioButtonMenuItem> languageMenuItems = new HashMap<>();
+    private final JRadioButtonMenuItem[] languageItem;
 
     public PanelHeader(ApplicationContext applicationContext) {
         super(applicationContext);
@@ -45,16 +42,17 @@ public class PanelHeader extends GtnhUpdaterPanelComponent implements GtnhUpdate
         this.bugReport = new JButton(IconHandler.fetchIcon(BootstrapIcons.BUG));
 
         this.languagePopup = new JPopupMenu();
-        this.languageButtonGroup = new ButtonGroup();
+        ButtonGroup languageButtonGroup = new ButtonGroup();
+        int numSupportedLanguages = I18nManager.SUPPORTED_LOCALES.length;
+        this.languageItem = new JRadioButtonMenuItem[numSupportedLanguages];
 
-        for (Locale locale : I18nManager.SUPPORTED_LOCALES) {
-            JRadioButtonMenuItem item = new JRadioButtonMenuItem(i18nManager.getDisplayName(locale));
-            item.setSelected(locale.equals(i18nManager.getCurrentLocale()));
-            item.addActionListener(e -> i18nManager.setLocale(locale));
+        for (int i = 0; i < numSupportedLanguages; i++) {
+            Locale locale = I18nManager.SUPPORTED_LOCALES[i];
+            this.languageItem[i] = new JRadioButtonMenuItem(i18nManager.getDisplayName(locale));
+            this.languageItem[i].addActionListener(e -> i18nManager.setLocale(locale));
 
-            languageButtonGroup.add(item);
-            languagePopup.add(item);
-            languageMenuItems.put(locale, item);
+            languageButtonGroup.add(this.languageItem[i]);
+            languagePopup.add(this.languageItem[i]);
         }
 
         gbc.gridx = 0; gbc.gridy = 0; gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -75,6 +73,14 @@ public class PanelHeader extends GtnhUpdaterPanelComponent implements GtnhUpdate
     }
 
     private void onClickLanguage(ActionEvent e) {
+        // Update Language Selection when opening the menu
+        int numSupportedLanguages = I18nManager.SUPPORTED_LOCALES.length;
+        for (int i = 0; i < numSupportedLanguages; i++) {
+            Locale locale = I18nManager.SUPPORTED_LOCALES[i];
+            JRadioButtonMenuItem item = this.languageItem[i];
+            item.setSelected(locale.equals(i18nManager.getCurrentLocale()));
+        }
+
         this.languagePopup.show(this.languageSelection, this.languageSelection.getX(), this.languageSelection.getY());
     }
 

@@ -10,9 +10,13 @@ import static de.husten1997.copyinstance.RelevantFolder.RELEVANT_FILES;
 import static de.husten1997.copyinstance.RelevantFolder.RELEVANT_FOLDERS;
 
 public class ApplicationContext {
+
+    // Application Configs
     private int windowWidth;
     private int windowHeight;
+    private String language;
 
+    // GTNH Configs
     private String oldGtnhFolderPath;
     private String newGtnhFolderPath;
 
@@ -22,6 +26,7 @@ public class ApplicationContext {
 
     public ApplicationContext(
             int windowWidth, int windowHeight,
+            String language,
             String oldGtnhFolderPath,
             String newGtnhFolderPath,
             CopyPlan[] copyPlanBatch,
@@ -29,6 +34,7 @@ public class ApplicationContext {
     ) {
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
+        this.language = language;
         this.oldGtnhFolderPath = oldGtnhFolderPath;
         this.newGtnhFolderPath = newGtnhFolderPath;
         this.copyPlanBatch = copyPlanBatch;
@@ -38,14 +44,16 @@ public class ApplicationContext {
     public ApplicationContext() {
         this.windowWidth = 800;
         this.windowHeight = 600;
+        this.language = "en";
 
         this.oldGtnhFolderPath = "";
         this.newGtnhFolderPath = "";
         this.copyPlanBatch = createDefaultCopyPlanBatch();
         this.changeSettingsBatch = new ChangeStepFile[0];
+
     }
 
-    // Application GUI Config
+    // Application Config
     public int getWindowWidth() {
         return windowWidth;
     }
@@ -60,6 +68,14 @@ public class ApplicationContext {
 
     public void setWindowHeight(int windowHeight) {
         this.windowHeight = windowHeight;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     // GTNH Paths
