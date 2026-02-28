@@ -60,10 +60,10 @@ public class PanelChangeSettings extends GtnhUpdaterPanelComponent {
                 settingsList.setModel(new DefaultListModel<>());
                 return;
             }
-            if ( !fileListDataModel.contains(selection) ) {
-                settingsList.setModel(new DefaultListModel<>());
-                return;
-            }
+//            if ( !fileListDataModel.contains(selection) ) {
+//                settingsList.setModel(new DefaultListModel<>());
+//                return;
+//            }
 
             // Retrieve SettingsFile at index and check whether there are related SettingsEntry entries
             final String key = fileListDataModel.get(selection).toString();
@@ -72,7 +72,7 @@ public class PanelChangeSettings extends GtnhUpdaterPanelComponent {
                 return;
             }
 
-            // Sett the SettingsList component to show the correct list of settings entries
+            // Set the SettingsList component to show the correct list of settings entries
             settingsList.setModel(settingsListDataModel.get(key));
 
         });
@@ -136,7 +136,6 @@ public class PanelChangeSettings extends GtnhUpdaterPanelComponent {
             if ( !fileListDataModel.contains(selection) ) { return; }
 
             // Check if there is a GTNH Folder picked, break if not
-            // TODO: Add isValid function which also checks if the path is valid
             if ( !applicationContext.testValidNewGtnhPath() ) {
                 JOptionPane.showMessageDialog(addFile, i18nManager.get("app.warningDialog.title.selectValidInstances"));
                 return;

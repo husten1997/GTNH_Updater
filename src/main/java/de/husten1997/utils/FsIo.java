@@ -118,6 +118,7 @@ public class FsIo {
 
 
     public static int changeFile(String settingFile, SettingEntry[] settingEntry) throws IOException {
+        //TODO Integrate Line Number
         List<String> newLines = new ArrayList<>();
         List<String> keyMap = new ArrayList<>();
         List<Boolean> foundIndices = new ArrayList<>();
@@ -128,28 +129,73 @@ public class FsIo {
         }
         LOGGER.log(Level.FINE, "Starting file " + settingFile);
         int matches = 0;
+        int line_index = 0;
         for (String line : Files.readAllLines(Paths.get(settingFile), StandardCharsets.UTF_8)) {
-            LOGGER.log(Level.FINEST, "\tOriginal: " + line);
+            line_index++;
+            LOGGER.log(Level.FINEST, "\tOriginal: " + line + " line nr.: " + line_index);
 
             Optional<ConfigLine> result = parseLine(line);
-            if (result.isPresent()) {
-                ConfigLine config = result.get();
-                int index = keyMap.indexOf(config.getKey());
 
-                if (index == -1) {
-                    newLines.add(line);
-                    LOGGER.log(Level.FINEST, "\tNo setting found to change.");
-                } else {
-                    LOGGER.log(Level.FINEST, "\tFound setting to change " + config);
-                    newLines.add(config.reconstruct(settingEntry[index].getSettingValue()));
-                    matches++;
-                    foundIndices.set(index, true);
-                }
-
-            } else {
+            // Skipping (but preserving) empty lines
+            if (result.isEmpty()) {
                 LOGGER.log(Level.FINEST, "\tNo pattern matched.");
                 newLines.add(line);
+                continue;
             }
+
+            // Check whether the current config is actually of interest to us
+            ConfigLine config = result.get();
+            int index = keyMap.indexOf(config.getKey());
+            if (index == -1) {
+                LOGGER.log(Level.FINEST, "\tNo setting found to change.");
+                newLines.add(line);
+                continue;
+            }
+
+            // If no settings line is specified, change the setting and continue
+            if (settingEntry[index].getSettingLine() == 0) {
+                LOGGER.log(Level.FINEST, "\tFound setting to change " + config);
+                newLines.add(config.reconstruct(settingEntry[index].getSettingValue()));
+                matches++;
+                foundIndices.set(index, true);
+                continue;
+            }
+
+            if (settingEntry[index].getSettingLine() == line_index) {
+                LOGGER.log(Level.FINEST, "\tFound setting to change " + config);
+                newLines.add(config.reconstruct(settingEntry[index].getSettingValue()));
+                matches++;
+                foundIndices.set(index, true);
+                continue;
+            }
+
+            LOGGER.log(Level.FINEST, "\tFound setting to change " + config + " but wrong line, expecting line " + settingEntry[index].getSettingLine());
+            newLines.add(line);
+//            if (result.isPresent()) {
+//                ConfigLine config = result.get();
+//                int index = keyMap.indexOf(config.getKey());
+//
+//                if (index == -1) {
+//                    newLines.add(line);
+//                    LOGGER.log(Level.FINEST, "\tNo setting found to change.");
+//                } else {
+//                    if (settingEntry[index].getSettingLine() == 0) {
+//                        LOGGER.log(Level.FINEST, "\tFound setting to change " + config);
+//                        newLines.add(config.reconstruct(settingEntry[index].getSettingValue()));
+//                        matches++;
+//                        foundIndices.set(index, true);
+//                    } else {
+//                        LOGGER.log(Level.FINEST, "\tFound setting to change " + config);
+//                        newLines.add(config.reconstruct(settingEntry[index].getSettingValue()));
+//                        matches++;
+//                        foundIndices.set(index, true);
+//                    }
+//
+//                }
+//            } else {
+//                LOGGER.log(Level.FINEST, "\tNo pattern matched.");
+//                newLines.add(line);
+//            }
         }
         LOGGER.log(Level.FINE, String.format("Finished file: Found %d / %d matches.", matches, settingEntry.length));
         if (matches + 1 < settingEntry.length) {

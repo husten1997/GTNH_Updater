@@ -103,6 +103,7 @@ public class MainWindow extends GtnhUpdaterPanelComponent {
         this.getApplicationConfig().setCopyPlanBatch(copyPlans);
         this.getApplicationConfig().setChangeSettingsBatch(settingsToChange.getChangeSettingsBatch());
         this.getApplicationConfig().setLanguage(language);
+        // TODO: Update Window Size
     }
 
     private void migrateInstance() {
